@@ -1,0 +1,673 @@
+-----arbori
+
+#include <iostream>
+///// creare arbor si afisare
+
+using std::cout;
+#include <queue>
+
+struct nod {
+    int valoare;
+    nod *st,*dr;
+};
+struct arbore{
+
+
+    nod* radacina;
+    arbore(){radacina=NULL;}
+
+void insereaza(int valoare){insereaza(valoare,radacina);}
+void insereaza(int valoare, nod *&radacina){
+
+
+    if(radacina==NULL){
+        radacina=new nod;
+        radacina->st=radacina->dr=NULL;
+        radacina->valoare=valoare;
+        return ;
+
+
+    }
+    if(valoare<=radacina->valoare)
+        insereaza(valoare,radacina->st);
+    else insereaza(valoare,radacina->dr);
+
+}
+};
+
+// in ordine
+void afisareSRD(nod *radacina){
+    if(radacina!=NULL){
+
+        afisareSRD(radacina->st);
+        cout<<radacina->valoare<<" ";
+        afisareSRD(radacina->dr);
+    }
+
+
+
+}
+void RSD(nod *radacina){
+    if (radacina!=NULL){
+        cout<<radacina->valoare<<" ";
+        RSD(radacina->st);
+        RSD(radacina->dr);
+    }
+}
+void SDR(nod *radacina){
+    if (radacina!=NULL){
+        SDR(radacina->st);
+        SDR(radacina->dr);
+        cout<<radacina->valoare<<" ";
+    }
+}
+
+
+//// cautarea in arborele binar
+
+int cautare(struct nod* radacina, int valoarecautata){
+    if(valoarecautata==radacina->valoare) return radacina->valoare;
+    if(radacina->valoare>valoarecautata) return cautare(radacina->st,valoarecautata);
+    else return cautare(radacina->dr,valoarecautata);
+
+
+
+};
+
+
+int GasesteElementulMinim(nod* radacina){
+    if(radacina==NULL) cout<<"Eroare, nu exista!";
+    if(radacina->st==NULL) return radacina->valoare;
+       return GasesteElementulMinim(radacina->st);
+
+
+}
+
+int inaltimeaArborelui(nod *radacina){
+    if(radacina==NULL) return -1;
+    return std::max(inaltimeaArborelui(radacina->st), inaltimeaArborelui(radacina->dr))+1;
+}
+
+
+// lever-order traversal,cu coada , parcurgere in latime oarecum
+//afiseze parcurgerea pe nivele, de la stanga la dreapta
+// timp O(n),spatiu cel mai bun O(1),average/worst O(n)
+void levelorder(nod * radacina){
+    std::queue<nod*>q;
+    q.push(radacina);
+    while(!q.empty()){
+        nod* curent=q.front();
+        cout<<curent->valoare<<" ";
+    if(curent->st!=NULL) q.push(curent->st);
+    if(curent->dr!=NULL) q.push(curent->dr);
+    q.pop();}
+
+
+
+} // sa mai si parcurgerea in adancime, postordine,inordine,preordine
+
+
+bool verificaDacaEArboreBinar(nod* radacina,int minim,int maxim){ ///
+
+
+    if(radacina==NULL) return true;
+    if(radacina->valoare<minim ||
+    radacina->valoare>maxim ) return false;
+   if( verificaDacaEArboreBinar(radacina->st,minim,radacina->valoare)&&
+    verificaDacaEArboreBinar(radacina->dr,radacina->valoare,maxim)) return true;
+
+    return false;
+}
+int main() {
+arbore a;
+//a.insereaza(2);
+//a.insereaza(5);
+//a.insereaza(4);
+//a.insereaza(3);
+//a.insereaza(9);
+   // afisareSRD(a.radacina);
+    //cout<<cautare(a.radacina,4);
+   // cout<<GasesteElementulMinim(a.radacina);
+   //cout<<inaltimeaArborelui(a.radacina);
+   // levelorder(a.radacina);
+
+//    a.insereaza(12);
+//    a.insereaza(5);
+//    a.insereaza(3);
+//    a.insereaza(7);
+//    a.insereaza(9);
+//    a.insereaza(8);
+//    a.insereaza(11);
+//    a.insereaza(15);
+//    a.insereaza(13);
+//    a.insereaza(17);
+//    a.insereaza(16);
+//
+//
+//
+
+
+
+
+#include <iostream>
+using namespace std;
+#include <bits/stdc++.h>
+
+struct nod{
+    int valoare;
+    nod *st,*dr;
+};
+
+ nod * nodnou(int valoare){
+
+     nod*temp=new nod;
+     temp->valoare=valoare;
+     temp->st=temp->dr=NULL;
+     return temp;
+ }
+ nod * inserare(nod*radacina,int valoare){
+     if(radacina==NULL) return nodnou(valoare);
+     if(valoare<radacina->valoare)  radacina->st=inserare(radacina->st,valoare);
+     else  radacina->dr=inserare(radacina->dr,valoare);
+     return radacina;
+
+ }
+
+ nod * valoareminima(nod* radacina){
+     nod * curent=radacina;
+     while(curent->st!=NULL && curent)
+         curent=curent->st;
+     return curent;
+ }
+ nod * stergerenod(nod *radacina,int valoare){
+
+     if(radacina==NULL)
+         return radacina;
+     if(valoare<radacina->valoare)
+         radacina->st= stergerenod(radacina->st,valoare);
+     else if(radacina->valoare<valoare)
+         radacina->dr= stergerenod(radacina->dr,valoare);
+     else{ // am gasit valoarea pe care o stergem
+
+         if(radacina->st==NULL && radacina->dr==NULL) // daca e frunza
+         {
+             return NULL;
+         }
+         else if(radacina->st==NULL){
+             nod *temp=radacina->dr;
+             delete(radacina);
+             return temp;
+
+
+         }
+         else if(radacina->dr==NULL){
+             nod *temp=radacina->st;
+            delete(radacina);
+             return temp;
+         }
+
+         nod*temp= valoareminima(radacina->dr);
+         // cautam valoarea minima in arborele din dreapta
+         radacina->valoare=temp->valoare;
+         radacina->dr= stergerenod(radacina->dr,temp->valoare);
+
+
+
+     }
+     return radacina;
+ }
+
+ void RSD(nod *radacina){
+if(radacina==NULL)
+    return ;
+     cout<<radacina->valoare<<" ";
+     RSD(radacina->st);
+     RSD(radacina->dr);
+
+ }
+
+ nod * cautanod(nod*radacina,int data){
+     if(radacina==NULL) return NULL;
+     if(radacina->valoare==data) return radacina;
+     else if(radacina->valoare>data)
+         return cautanod(radacina->st,data);
+     else return cautanod(radacina->dr,data);
+ }
+
+
+ nod* GasesteSuccesoruluiUnuiNod(nod *radacina,int valoare){ // complexitate O(h)
+
+     nod* curent= cautanod(radacina,valoare);
+if(curent==NULL) return NULL;
+     if(curent->dr!= NULL){
+         //cand avem ramura in dreapta
+         return valoareminima(curent->dr);
+
+     }
+     else{
+         // daca nu are ramura in dreapta
+         nod * succesor=NULL;
+         nod* parinte=radacina;
+         while(parinte!=curent){
+             if(parinte->valoare>curent->valoare)
+             {
+                 succesor=parinte;
+                 parinte=parinte->st;
+             }
+             else parinte=parinte->dr;
+
+         }
+
+         return succesor;
+     }
+
+ }
+
+ int main(){
+     nod * radacina=NULL;
+     radacina= inserare(radacina,50);
+     radacina = inserare(radacina, 30);
+     radacina = inserare(radacina, 20);
+     radacina = inserare(radacina, 40);
+     radacina = inserare(radacina, 10);
+     radacina = inserare(radacina, 70);
+     radacina = inserare(radacina, 60);
+     radacina = inserare(radacina, 80);
+     RSD(radacina);
+     cout<<endl;
+     cout<<GasesteSuccesoruluiUnuiNod(radacina,70)->valoare;
+   // radacina= stergerenod(radacina,50);
+    // RSD(radacina);
+     return 0;
+ }
+
+
+
+
+---------------arbori
+
+
+
+---liste
+
+#include <iostream>
+
+using namespace std;
+
+struct nod{
+    int valoare;
+    nod * next;
+
+};
+void lainceput(nod **cap,int valoarea){
+    nod * nou=new nod();
+    nou->valoare=valoarea;
+    nou->next=*cap;
+    *cap=nou;
+
+
+}
+void lasfarsit(nod **cap,int valoare){
+    nod *nou= new nod();
+    nou->valoare=valoare;
+    nou->next=NULL;
+    if(*cap==NULL){
+        *cap=nou;
+        return ;
+    }
+    nod* ultimu=*cap;
+    while(ultimu->next!=NULL)
+    {ultimu=ultimu->next;}
+
+    ultimu->next=nou;
+
+}
+
+
+void peopozitie(nod **cap,int pozitie,int data){
+
+    nod *nou= new nod();
+    nou->valoare=data;
+    nou->next=NULL;
+    if(*cap==NULL){
+
+        *cap=nou;
+        return ;
+    }
+    if(pozitie==0){
+        nou->next=(*cap);
+        *cap=nou;
+        return ;
+
+    }
+    nod* inainte=*cap;
+    for(int i=0;i<pozitie-1;i++){
+        if(inainte->next==NULL) break;
+    inainte=inainte->next;}
+    nou->next=inainte->next;
+    inainte->next=nou;
+}
+void stergere(nod** head,int pos){
+
+    if (head == NULL) return;
+    nod  *temp = *head;
+    if (pos == 0) {
+        *head = temp->next;
+        delete temp;
+        return;
+    }
+    for (int i = 0; temp != NULL && i < pos - 1; i++) {
+        temp = temp->next;
+    }
+    if (temp == NULL || temp->next == NULL) {
+        return;
+    }
+  nod *temp2=temp->next;
+    temp->next=temp2->next;
+    delete temp2;
+}
+
+void afisare(nod *A){
+    cout<<A->valoare<<" ";
+    if(A->next!=NULL) afisare(A->next);
+
+}
+
+nod* InvesareListaIterativ(nod * radacina){
+
+
+
+    nod*curent,*prev,*next;
+    curent=radacina;
+    prev=NULL;
+    while(curent!=NULL){
+        next=curent->next;
+        curent->next=prev;
+        prev=curent;
+        curent=next;
+    }
+    radacina=prev;
+    return radacina;
+}
+int main() {
+   nod *A;
+//   lainceput(&A,2);
+//    lainceput(&A,3);
+//    lainceput(&A,4);
+
+
+    lasfarsit(&A,2);
+    lasfarsit(&A,24);
+
+    peopozitie(&A,2,100);
+    //stergere(&A,2);
+
+   A= InvesareListaIterativ(A);
+
+    afisare(A);
+
+
+
+
+    return 0;
+}
+
+
+
+
+
+
+
+----liste
+
+
+
+
+
+
+
+     cout<<verificaDacaEArboreBinar(a.radacina,INT_MIN,INT_MAX);
+return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------timi-----------
+#include <iostream>
+#include <bits/stdc++.h>
+#include <vector>
+using namespace std;
+
+struct node
+{
+    int value;
+    node *left, *right;
+};
+
+node *newNode(int value)
+{
+    node *N = new node();
+    N->value = value;
+    N->left = NULL;
+    N->right = NULL;
+    return N;
+};
+
+typedef node *BinaryTree;
+
+// bool isSearchTree(BinaryTree &T)
+// {
+//     if (T == NULL)
+//         return true; // daca este gol, este arbore binar de cautare
+//     if (T->left != NULL && T->left->value > T->value)
+//         return false; // daca are fiu stanga, dar daca valoarea lui este mai mare decat radacina, nu este ABC
+//     if (T->right != NULL && T->right->value < T->value)
+//         return false;                                       // daca are fiu dreapta, dar daca valoarea lui este mai mica decat radacina, nu este ABC
+//     return isSearchTree(T->left) && isSearchTree(T->right); // altfel este ABC
+// } // O(n) n- nr de noduri -- nu e corect
+
+int isBSTUtil(BinaryTree &T, int min, int max)
+{
+    if (T == NULL) // daca este gol, este ABC
+        return 1;
+    if (T->value < min || T->value > max)
+        return 0;                                                                           // daca valoarea este mai mica decat minimul sau mai mare decat maximul, nu este ABC
+    return isBSTUtil(T->left, min, T->value - 1) && isBSTUtil(T->right, T->value + 1, max); // altfel este ABC
+}
+
+bool isSearchTree(BinaryTree &T)
+{
+    return isBSTUtil(T, INT_MIN, INT_MAX);
+}
+
+int height(BinaryTree &T)
+{
+    if (T == NULL)
+        return 0;
+    int hl = height(T->left);
+    int hr = height(T->right);
+    return 1 + max(hr, hl);
+}
+
+bool isAVL(BinaryTree &T)
+{
+    if (T == NULL)
+        return true;
+    return (abs(height(T->left) - height(T->right)) <= 1 && isAVL(T->left) && isAVL(T->right));
+}
+
+int biggestSearchTree(BinaryTree &T)
+{
+    int max_size = 0;
+    int curr_size = 0;
+    if (T == NULL)
+        return 0;
+    if (isSearchTree(T))
+    {
+        curr_size = 1 + biggestSearchTree(T->left) + biggestSearchTree(T->right);
+        max_size = max(max_size, curr_size);
+    }
+    max_size = max(max_size, biggestSearchTree(T->left));
+    max_size = max(max_size, biggestSearchTree(T->right));
+    return max_size;
+}
+
+int biggestSearchTree2(BinaryTree &T)
+{
+    int max_size = 0;
+    int curr_size = 0;
+    if (T == NULL)
+        return 0;
+    if (isSearchTree(T))
+    {
+        curr_size = 1 + biggestSearchTree2(T->left) + biggestSearchTree2(T->right);
+        max_size = max(curr_size, max_size);
+    }
+
+    max_size = max(max_size, biggestSearchTree2(T->left));
+    max_size = max(max_size, biggestSearchTree2(T->right));
+    return max_size;
+}
+
+int biggestAVL(BinaryTree &T)
+{
+    int max_size = 0;
+    int curr_size = 0;
+    if (T == NULL)
+        return 0;
+    if (isAVL(T))
+    {
+        curr_size = 1 + biggestAVL(T->left) + biggestAVL(T->right);
+        max_size = max(max_size, curr_size);
+    }
+    max_size = max(max_size, biggestAVL(T->left));
+    max_size = max(max_size, biggestAVL(T->right));
+    return max_size;
+}
+// int longestMonotonicPath(BinaryTree &T)
+// {
+//     if (T == NULL)
+//         return 0;
+//     int lPath = longestMonotonicPath(T->left);
+//     int rPath = longestMonotonicPath(T->right);
+//     int lMono = 0, rMono = 0;
+//     if (T->left != NULL && T->left->value < T->value)
+//         lMono = 1 + longestMonotonicPath(T->left);
+//     if (T->right != NULL && T->right->value > T->value)
+//         rMono = 1 + longestMonotonicPath(T->right);
+//     return max(lMono + rMono, max(lPath, rPath));
+// }
+
+// int longestMonotonicPath(BinaryTree &T)
+// {
+//     if (T == NULL)
+//         return 0;
+//     int l = longestMonotonicPath(T->left);
+//     int r = longestMonotonicPath(T->right);
+//     int inc = 1, dec = 1;
+//     if (T->left && T->left->value < T->value)
+//         inc = 1 + longestMonotonicPath(T->left);
+//     if (T->right && T->right->value < T->value)
+//         inc = max(inc, 1 + longestMonotonicPath(T->right));
+//     if (T->left && T->left->value > T->value)
+//         dec = 1 + longestMonotonicPath(T->left);
+//     if (T->right && T->right->value > T->value)
+//         dec = max(dec, 1 + longestMonotonicPath(T->right));
+//     return max(inc, dec);
+// }
+
+// int longestMonotonicPath(BinaryTree &T)
+// {
+//     if (T == NULL)
+//         return 0;
+//     int l, r = 1;
+//     BinaryTree T1, T2;
+//     T1 = T;
+//     T2 = T;
+//     while (T1->left)
+//     {
+//         if (T1->left != NULL && T1->left->value < T1->value)
+//             l++;
+//         T1 = T1->left;
+//     }
+//     while (T2->right)
+//     {
+//         if (T2->right != NULL && T2->right->value > T2->value)
+//             r++;
+//         T2 = T2->right;
+//     }
+//     if (T->value < T->right->value)
+//         return l + r;
+//     return max(l, r);
+// }
+int longestMonotonicPathRec(BinaryTree &T, int &maxLength)
+{
+    if (T == NULL)
+        return 0;
+
+    int leftLength = longestMonotonicPathRec(T->left, maxLength);
+    int rightLength = longestMonotonicPathRec(T->right, maxLength);
+
+    int inc = 1, dec = 1;
+    if (T->left && T->value > T->left->value)
+        inc = 1 + leftLength;
+
+    if (T->right && T->value < T->right->value)
+        dec = 1 + rightLength;
+
+    maxLength = max(maxLength, inc + dec - 1);
+
+    return max(inc, dec);
+}
+
+int longestMonotonicPath(BinaryTree &T)
+{
+    int maxLength = 0;
+    longestMonotonicPathRec(T, maxLength);
+    return maxLength;
+}
+
+bool isInOrder(const vector<int> &v)
+{
+    int i = 0;
+    for (int i = 1; i < v.size(); i++)
+        if (v[i] < v[i - 1])
+            return false;
+    return true;
+} // daca este in order este vectorul crescator
+
+int main()
+{
+    BinaryTree T = newNode(4);
+    T->left = newNode(2);
+    T->left->right = newNode(3);
+    T->left->left = newNode(1);
+    T->right = newNode(6);
+    T->right->left = newNode(5);
+    // T->right->right = newNode(7);
+    // T->right->right->right = newNode(9);
+    // T->right->right->right->right = newNode(10);
+
+    cout << isSearchTree(T) << endl;
+    cout << isAVL(T) << endl;
+    cout << biggestSearchTree(T) << endl;
+    cout << biggestAVL(T) << endl;
+    cout << longestMonotonicPath(T) << endl;
+    return 0;
+}
+-------------------timi
