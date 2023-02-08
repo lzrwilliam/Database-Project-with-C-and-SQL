@@ -1,0 +1,1151 @@
+//bst+avl+tot ce e legat de arbori
+#include <iostream>
+using namespace std;
+#include <algorithm>
+#include <queue>
+struct Bst_Node{
+    int data;
+    Bst_Node *left;
+    Bst_Node * right;
+};
+
+Bst_Node * Get_New_Node(int value)//aloca spatiu pe heap pentru un nou nod
+{
+    Bst_Node * bst=new Bst_Node();
+    bst->data=value;
+    bst->left=bst->right= nullptr;
+    return  bst;
+}
+
+bool Search(Bst_Node* root,int value)//cauta o valoarea in bst si zice daca exista sau nu, complexitate O(h) unde h e inaltimea
+{
+    if(root==nullptr)
+    {
+        return 0;
+    }
+    else if(root->data==value)
+            return true;
+    else if(value<=root->data)
+        Search(root->left,value);
+    else
+        Search(root->right,value);
+}
+
+Bst_Node* Search2(Bst_Node* root,int value)
+{
+    if(root==nullptr)
+    {
+        return nullptr;
+    }
+    else if(root->data==value)
+        return root;
+    else if(value<=root->data)
+        Search(root->left,value);
+    else
+        Search(root->right,value);
+}
+
+void insert(Bst_Node*& root,int value)//insereaza un nou nod in bst
+{
+    if(root==nullptr)
+    {
+        root= Get_New_Node(value);
+    }
+    else if(value<=root->data)
+    {
+        insert(root->left,value);
+    }
+    else if(value>root->data)
+    {
+        insert(root->right,value);
+    }
+}
+int FindMin(Bst_Node* root)//gaseste el minim pentru un bst
+{
+    if(root == nullptr)
+    {
+        std::cout<<"The tree is empty!";
+        return -1;
+    }
+    else if(root->left== nullptr)
+    {
+        return root->data;
+    }
+    return  FindMin(root->left);
+}
+
+Bst_Node* FindMin2(Bst_Node* root)//gaseste el minim pentru un bst
+{
+    if(root == nullptr)
+    {
+        std::cout<<"The tree is empty!";
+    }
+    else if(root->left== nullptr)
+    {
+        return root;
+    }
+    return FindMin2(root->left);
+}
+int FindMax(Bst_Node* root)//gaseste el maxim pentru un bst
+{
+    if(root== nullptr)
+    {
+        std::cout<<"The tree is empty!";
+        return -1;
+    }
+    else if(root->right== nullptr)
+    {
+        return root->data;
+    }
+    return FindMax(root->right);
+}
+
+int FindHight(Bst_Node * root){ //gaseste inaltimea unui arbore, nu neaparat bst
+
+    if(root== nullptr)
+        return -1;
+    return max(FindHight(root->right), FindHight(root->left))+1;
+}
+
+void bfs(Bst_Node * root)//breadth-level or level order
+{
+    if(root== nullptr)
+        return;
+    else
+    {
+        queue<Bst_Node *> q;
+        q.push(root);
+        while(!q.empty())
+        {
+            Bst_Node* n=q.front();
+            cout<<n->data<<" ";
+            if(n->left!= nullptr)
+                q.push(n->left);
+            if(n->right!= nullptr)
+                q.push(n->right);
+            q.pop();
+        }
+    }
+}
+
+void Preorder(Bst_Node * root)
+{
+    if(root== nullptr)
+        return;
+    cout<<root->data<<" ";
+    Preorder(root->left);
+    Preorder(root->right);
+}
+
+void Inorder(Bst_Node* root)
+{
+    if(root== nullptr)
+        return;
+    Inorder(root->left);
+    cout<<root->data<<" ";
+    Inorder(root->right);
+}
+
+void Postorder(Bst_Node* root)
+{
+    if(root== nullptr)
+        return;
+    Inorder(root->left);
+    Inorder(root->right);
+    cout<<root->data<<" ";
+}
+
+bool IsBinarySearchTree(Bst_Node * root,int MinValue,int MaxValue)//complexitate O(n)
+{
+    if(root==nullptr)
+        return true;
+    if(root->data>=MinValue && root->data<MaxValue
+    && IsBinarySearchTree(root->left,MinValue,root->data)
+    &&IsBinarySearchTree(root->right,root->data,MaxValue))
+        return true;
+    else
+        return false;
+}
+
+Bst_Node * delete_bst(Bst_Node * root,int value)//sterge din bst
+{
+    if(root== nullptr)
+        return root;
+    else if(value<=root->data)
+         root->left=delete_bst(root->left,value);
+    else if (value>root->data)
+    root->right= delete_bst(root->right,value);
+    else
+    {
+        if(root->left == nullptr && root->right== nullptr){
+            delete root;
+            root = nullptr;
+        }
+        else if(root->left == nullptr)
+        {
+            Bst_Node * temp = root;
+            root=root->right;
+            delete temp;
+        }
+        else if(root->right == nullptr)
+        {
+            Bst_Node * temp =root;
+            root=root->left;
+            delete temp;
+        }else
+        {
+            Bst_Node * temp = FindMin2(root->right);
+                    root->data=temp->data;
+            root->right= delete_bst(root->right,temp->data);
+
+        }
+        return root;
+    }
+}
+
+int GetSuccessor(Bst_Node* root,int value)//succesorul pentru travesarea in ordine
+{
+    Bst_Node * current= Search2(root,value);
+    if(current== nullptr)
+        return 0;
+    //caz 1, nodul are subtree in dreapta
+    if(current->right!= nullptr)
+    {
+        return FindMin(current->right);
+    }
+    //caz 2, nu are subtree in dreapta
+    else{
+        Bst_Node * succesorssor= nullptr;
+        Bst_Node * ancestor= root;
+        while(ancestor!=current){
+            if(current->data < ancestor->data)
+            {
+                succesorssor=ancestor;
+                ancestor=ancestor->left;
+            } else{
+                ancestor=ancestor->right;
+            }
+        }
+        return succesorssor->data;
+    }
+}
+
+
+bool isAVL(Bst_Node *T)
+{
+    if (T == NULL)
+        return true;
+    return (abs(FindHight(T->left) - FindHight(T->right)) <= 1 && isAVL(T->left) && isAVL(T->right));
+}
+
+int biggestSearchTree(Bst_Node *T)
+{
+    int max_size = 0;
+    int curr_size = 0;
+    if (T == NULL)
+        return 0;
+    if (IsBinarySearchTree(T,INT_MIN,INT_MAX))
+    {
+        curr_size = 1 + biggestSearchTree(T->left) + biggestSearchTree(T->right);
+        max_size = max(max_size, curr_size);
+    }
+
+    max_size = max(max_size, biggestSearchTree(T->left));
+    max_size = max(max_size, biggestSearchTree(T->right));
+    return max_size;
+}
+
+int biggestAVL(Bst_Node *T)
+{
+    int max_size = 0;
+    int curr_size = 0;
+    if (T == NULL)
+        return 0;
+    if (isAVL(T))
+    {
+        curr_size = 1 + biggestSearchTree(T->left) + biggestSearchTree(T->right);
+        max_size = max(max_size, curr_size);
+    }
+
+    max_size = max(max_size, biggestSearchTree(T->left));
+    max_size = max(max_size, biggestSearchTree(T->right));
+    return max_size;
+}
+int main() {
+    Bst_Node * root = nullptr;
+    insert(root,12);
+    insert(root,5);
+    insert(root,3);
+    insert(root,7);
+    insert(root,9);
+    insert(root,8);
+    insert(root,11);
+    insert(root,15);
+    insert(root,13);
+    insert(root,17);
+    insert(root,16);
+   // delete_bst(root,16);
+   // Inorder(root);
+   // bfs(root);
+   std::cout<<IsBinarySearchTree(root,INT_MIN,INT_MAX);
+    //std::cout<<FindMin(root);
+
+}
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+///lista simplu inlantuita
+
+#include <iostream>
+#include <string>
+#include <stack>
+using namespace std;
+
+class Node{
+public:
+    int value;
+    Node* next;
+};
+
+void displayList(class Node *node)
+{
+    while (node != NULL)
+    {
+        cout<<node->value<<"-->";
+        node = node->next;
+    }
+
+    if(node== NULL)
+        cout<<"null";
+}
+
+void front_insert(class Node** head, int value)//push
+{
+    if(*head== nullptr)
+    {
+        (*head)=new Node();
+        (*head)->value=value;
+        (*head)->next= nullptr;
+        return;
+    }
+    Node * n=new Node();
+
+    n->value = value;
+
+    n->next = (*head);
+
+    (*head) = n;
+}
+
+void back_insert(class Node** head,int value)
+{
+    if(*head== nullptr)
+    {
+        (*head)=new Node();
+        (*head)->value=value;
+        (*head)->next= nullptr;
+        return;
+    }
+    Node *n=new Node;
+    n->value=value;
+    Node* last=new Node;
+    last=*head;
+    while(last->next!= nullptr){
+        last=last->next;
+    }
+    last->next=n;
+    n->next= nullptr;
+}
+
+void insert_after(class Node** prev,int value)
+{
+    if(prev== nullptr)
+    {
+        cout<<"Nu exista prev!"<<endl;
+        return;
+    }
+    Node * n=new Node();
+    n->value=value;
+    n->next=(*prev)->next;
+    (*prev)->next=n;
+}
+
+void reverse(class Node** head)//reverse iterativ
+{
+    Node *n=*head;
+    Node *next= nullptr;
+    Node * prev= nullptr;
+    while(n!= nullptr)
+    {
+        next=n->next;
+        n->next=prev;
+        prev=n;
+        n=next;
+    }
+    *head=prev;
+}
+
+void stack_reverse(class Node** head)
+{
+    if(head== nullptr)
+        return;
+    stack<Node *> s;
+    Node * temp=*head;
+    while(temp!= nullptr)
+    {
+        s.push(temp);
+        temp=temp->next;
+    }
+    temp=s.top();
+    *head=temp;
+    s.pop();
+    while (!s.empty())
+    {
+        temp->next=s.top();
+        s.pop();
+        temp=temp->next;
+    }
+    temp->next= nullptr;
+}
+//delete la inceput va fi pop
+void delete_value(class Node** head,int value)
+{
+   class Node *n;
+   if((*head)->value==value)
+   {
+       n=*head;
+       *head=(*head)->next;
+       delete n;
+   }
+   else
+   {
+       n=(*head);
+       while(n->next!= nullptr)
+       {
+           if(n->next->value==value)
+           {
+               class Node * tmp= nullptr;
+              tmp=n->next;
+              n->next=n->next->next;
+              delete tmp;
+           }
+           else
+               n=n->next;
+       }
+   }
+}
+int main() {
+    Node* head= nullptr;
+    front_insert(&head,10);
+    front_insert(&head,20);
+    back_insert(&head,30);
+    insert_after(&head->next,69);
+  //  delete_value(&head,69);
+   // delete_value(&head,30);
+    //reverse(&head);
+    delete_value(&head,20);
+    displayList(head);
+}
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+// doubly linked list
+#include <bits/stdc++.h>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node* next;
+    Node* prev;
+};
+
+void push(Node** head_ref, int new_data)
+{
+    Node* new_node = new Node();
+
+    new_node->data = new_data;
+
+    new_node->next = (*head_ref);
+    new_node->prev = NULL;
+
+    if ((*head_ref) != NULL)
+        (*head_ref)->prev = new_node;
+
+    (*head_ref) = new_node;
+}
+
+
+void insertAfter(Node* prev_node, int new_data)
+{
+    if (prev_node == NULL) {
+        cout << "the given previous node cannot be NULL";
+        return;
+    }
+
+    Node* new_node = new Node();
+
+    new_node->data = new_data;
+
+    new_node->next = prev_node->next;
+
+    prev_node->next = new_node;
+
+
+    new_node->prev = prev_node;
+
+    if (new_node->next != NULL)
+        new_node->next->prev = new_node;
+}
+
+
+void append(Node** head_ref, int new_data)
+{
+    Node* new_node = new Node();
+
+    Node* last = *head_ref;
+
+    new_node->data = new_data;
+
+
+    new_node->next = NULL;
+
+    if (*head_ref == NULL) {
+        new_node->prev = NULL;
+        *head_ref = new_node;
+        return;
+    }
+
+    while (last->next != NULL)
+        last = last->next;
+
+    last->next = new_node;
+
+    new_node->prev = last;
+
+    return;
+}
+
+void printList(Node* node)
+{
+    Node* last;
+    cout << "\nTraversal in forward direction \n";
+    while (node != NULL) {
+        cout << node->data << " ";
+        last = node;
+        node = node->next;
+    }
+
+    cout << "\nTraversal in reverse direction \n";
+    while (last != NULL) {
+        cout << last->data << " ";
+        last = last->prev;
+    }
+}
+
+int main()
+{
+    Node* head = NULL;
+
+    append(&head, 6);
+
+
+    push(&head, 7);
+
+
+    push(&head, 1);
+
+    append(&head, 4);
+
+
+    insertAfter(head->next, 8);
+
+    cout << "Created DLL is: ";
+    printList(head);
+
+    return 0;
+}
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+///SET
+#include <iostream>
+#include <set>
+#include <queue>
+#include <stack>
+
+struct dataStructure {
+    std::set<int, std::greater<int>> s; // 10 20 50 50 30 40 --> 50 40 30 20 10
+
+    void insert(int valoare) { s.insert(valoare); }
+    int size() { return s.size(); }
+    int min() { return *s.rbegin(); }
+    int max() { return *s.begin(); }
+    void stergere(int valoare) { s.erase(s.find(valoare)); }
+    void afisare() { for (const auto&c : s) std::cout << c << " ";  std::cout << std::endl; }
+};
+
+
+int main()
+{
+    dataStructure ds;
+    ds.insert(1);
+    ds.insert(10);
+    ds.insert(3);
+
+    std::cout << "min =:" << ds.min() << " max=: " << ds.max() << std::endl;
+    ds.afisare();
+
+    std::priority_queue<int, std::vector<int>, std::greater<int>> pq;
+    pq.push(3);
+    pq.push(1);
+
+    std::cout << pq.top() << std::endl;
+    pq.pop();
+    std::cout << pq.top() << std::endl;
+
+    std::stack<int>st;
+
+    st.push(1);
+    st.push(3);
+    st.pop();
+    std::cout << st.top() << std::endl;
+
+    std::queue<int> q;
+    q.push(1);
+    q.push(3);
+
+    q.pop();
+    std::cout << q.front() << std::endl;
+    std::cout << q.back() << std::endl;
+
+    return 0;
+}
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+///IMPLEMENTARE STACK CU ARRAY
+
+
+//stack-implementat cu array
+#include <iostream>
+#include <stack>
+using namespace std;
+#define MAX_SIZE 101
+
+class Stack
+{
+private:
+    int A[MAX_SIZE];
+    int top;
+public:
+    Stack()
+    {
+        top = -1;
+    }
+
+    void Push(int x)
+    {
+        if(top == MAX_SIZE -1) { // overflow case.
+            printf("Error: stack overflow\n");
+            return;
+        }
+        A[++top] = x;
+    }
+    void Pop()
+    {
+        if(top == -1) {
+            printf("Error: No element to pop\n");
+            return;
+        }
+        top--;
+    }
+    int Top()
+    {
+        return A[top];
+    }
+
+    int IsEmpty()
+    {
+        if(top == -1) return 1;
+        return 0;
+    }
+
+    void Print() {
+        int i;
+        printf("Stack: ");
+        for(i = 0;i<=top;i++)
+            printf("%d ",A[i]);
+        printf("\n");
+    }
+};
+
+void Reverse(char c[],int n) {//inversam un sir de caractere cu ajutorul unui stack O(n)
+    stack<char> s;
+    for(int i=0;i<n;i++)
+    {
+        s.push(c[i]);
+    }
+    for(int i=0;i<n;i++)
+    {
+        c[i]=s.top();
+        s.pop();
+    }
+}
+
+int main()
+{
+
+    Stack S;
+    S.Push(2);S.Print();
+    S.Push(5);S.Print();
+    S.Push(10);S.Print();
+    S.Pop();S.Print();
+    S.Push(12);S.Print();
+}
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+///IMPELEMNTARE QUEUEUS CU ARRAY
+//queues
+#include<iostream>
+
+using namespace std;
+#define MAX_SIZE 101
+
+
+class Queue
+{
+private:
+    int A[MAX_SIZE];
+    int front, rear;
+public:
+    Queue()
+    {
+        front = -1;
+        rear = -1;
+    }
+
+    bool IsEmpty()
+    {
+        return (front == -1 && rear == -1);
+    }
+
+    bool IsFull()
+    {
+        return (rear+1)%MAX_SIZE == front ? true : false;
+    }
+
+    void Enqueue(int x)//push
+    {
+        cout<<"Enqueuing "<<x<<" \n";
+        if(IsFull())
+        {
+            cout<<"Error: Queue is Full\n";
+            return;
+        }
+        if (IsEmpty())
+        {
+            front = rear = 0;
+        }
+        else
+        {
+            rear = (rear+1)%MAX_SIZE;
+        }
+        A[rear] = x;
+    }
+
+    void Dequeue()//pop
+    {
+        cout<<"Dequeuing \n";
+        if(IsEmpty())
+        {
+            cout<<"Error: Queue is Empty\n";
+            return;
+        }
+        else if(front == rear )
+        {
+            rear = front = -1;
+        }
+        else
+        {
+            front = (front+1)%MAX_SIZE;
+        }
+    }
+    // Returns element at front of queue.
+    int Front()
+    {
+        if(front == -1)
+        {
+            cout<<"Error: cannot return front from empty queue\n";
+            return -1;
+        }
+        return A[front];
+    }
+    */
+    void Print()
+    {
+        // Finding number of elements in queue
+        int count = (rear+MAX_SIZE-front)%MAX_SIZE + 1;
+        cout<<"Queue       : ";
+        for(int i = 0; i <count; i++)
+        {
+            int index = (front+i) % MAX_SIZE; // Index of element while travesing circularly from front
+            cout<<A[index]<<" ";
+        }
+        cout<<"\n\n";
+    }
+};
+int main()
+{
+    /*Driver Code to test the implementation
+      Printing the elements in Queue after each Enqueue or Dequeue
+    */
+    Queue Q; // creating an instance of Queue.
+    Q.Enqueue(2);  Q.Print();
+    Q.Enqueue(4);  Q.Print();
+    Q.Enqueue(6);  Q.Print();
+    Q.Dequeue();	  Q.Print();
+    Q.Enqueue(8);  Q.Print();
+}
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+///*Queue - Linked List implementation*/
+#include<stdio.h>
+#include<stdlib.h>
+struct Node {
+    int data;
+    struct Node* next;
+};
+// Two glboal variables to store address of front and rear nodes.
+struct Node* front = NULL;
+struct Node* rear = NULL;
+
+// To Enqueue an integer
+void Enqueue(int x) {
+    struct Node* temp =
+            (struct Node*)malloc(sizeof(struct Node));
+    temp->data =x;
+    temp->next = NULL;
+    if(front == NULL && rear == NULL){
+        front = rear = temp;
+        return;
+    }
+    rear->next = temp;
+    rear = temp;
+}
+
+// To Dequeue an integer.
+void Dequeue() {
+    struct Node* temp = front;
+    if(front == NULL) {
+        printf("Queue is Empty\n");
+        return;
+    }
+    if(front == rear) {
+        front = rear = NULL;
+    }
+    else {
+        front = front->next;
+    }
+    free(temp);
+}
+
+int Front() {
+    if(front == NULL) {
+        printf("Queue is empty\n");
+        return;
+    }
+    return front->data;
+}
+
+void Print() {
+    struct Node* temp = front;
+    while(temp != NULL) {
+        printf("%d ",temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+int main(){
+    /* Drive code to test the implementation. */
+    // Printing elements in Queue after each Enqueue or Dequeue
+    Enqueue(2); Print();
+    Enqueue(4); Print();
+    Enqueue(6); Print();
+    Dequeue();  Print();
+    Enqueue(8); Print();
+}
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+//min heap si max heap
+struct min_heap{
+    int h[200];
+    int n=0;
+
+    void insert_heap(int x){
+        h[n]=x;
+        n++;
+
+        int index=n-1;
+        while (index>0 && h[(index-1)/2]>h[index]){//tatal in ordine incorecta
+            swap(h[(index-1)/2],h[index]);
+            index = (index-1)/2; // mergem in sus sa reparam heap
+        }
+    }
+};//inserare min-heap
+
+struct min_heap{//extragerea din heap
+    int h[200];
+    int n=0;
+
+    int extract_heap(){
+        swap(h[0],h[n-1]);
+        n--;
+
+        int index=0,ok=0;
+        do{
+            ok=0;
+            int index_element_minim=index;
+            //daca exista fiu stang si e mai mic
+            if (index*2+1<n && h[index*2+1]<h[index])
+                index_element_minim=index*2+1;//minimul de pana acum este fiu stang
+            //daca exista fiu drept si e mai mic
+            if (index*2+2<n && h[index*2+2]<h[index_element_minim])
+                index_element_minim=index*2+2;//minimul de pana acum este fiu drept
+            //daca parintele nu e cel mai mic
+            if (index_element_minim!=index){
+                ok=1;
+                swap(h[index],h[index_element_minim]);
+                index=index_element_minim;
+            }
+        } while(ok);
+
+        return h[n];
+    }
+};
+
+
+
+
+//min heap de pe net
+//class MinHeap:
+//        def __init__(self, arr=None):
+//self.heap = []
+//if type(arr) is list:
+//self.heap = arr.copy()
+//for i in range(len(self.heap))[::-1]:
+//self._siftdown(i)
+//
+//def _siftup(self, i):
+//parent = (i-1)//2
+//while i != 0 and self.heap[i] < self.heap[parent]:
+//self.heap[i], self.heap[parent] = self.heap[parent], self.heap[i]
+//i = parent
+//parent = (i-1)//2
+//
+//def _siftdown(self, i):
+//left = 2*i + 1
+//right = 2*i + 2
+//while (left < len(self.heap) and self.heap[i] > self.heap[left]) or (right < len(self.heap) and self.heap[i] > self.heap[right]):
+//smallest = left if (right >= len(self.heap) or self.heap[left] < self.heap[right]) else right
+//        self.heap[i], self.heap[smallest] = self.heap[smallest], self.heap[i]
+//i = smallest
+//left = 2*i + 1
+//right = 2*i + 2
+//
+//def insert(self, element):
+//self.heap.append(element)
+//self._siftup(len(self.heap)-1)
+//
+//def get_min(self):
+//return self.heap[0] if len(self.heap) > 0 else None
+//
+//        def extract_min(self):
+//if len(self.heap) == 0:
+//return None
+//        minval = self.heap[0]
+//self.heap[0], self.heap[-1] = self.heap[-1], self.heap[0]
+//self.heap.pop()
+//self._siftdown(0)
+//return minval
+//
+//        def update_by_index(self, i, new):
+//old = self.heap[i]
+//self.heap[i] = new
+//if new < old:
+//self._siftup(i)
+//else:
+//self._siftdown(i)
+//
+//def update(self, old, new):
+//if old in self.heap:
+//self.update_by_index(self.heap.index(old), new)
+//
+//class MaxHeap:
+//        def __init__(self, arr=None):
+//self.heap = []
+//if type(arr) is list:
+//self.heap = arr.copy()
+//for i in range(len(self.heap))[::-1]:
+//self._siftdown(i)
+//
+//def _siftup(self, i):
+//parent = (i-1)//2
+//while i != 0 and self.heap[i] > self.heap[parent]:
+//self.heap[i], self.heap[parent] = self.heap[parent], self.heap[i]
+//i = parent
+//parent = (i-1)//2
+//
+//def _siftdown(self, i):
+//left = 2*i + 1
+//right = 2*i + 2
+//while (left < len(self.heap) and self.heap[i] < self.heap[left]) or (right < len(self.heap) and self.heap[i] < self.heap[right]):
+//biggest = left if (right >= len(self.heap) or self.heap[left] > self.heap[right]) else right
+//        self.heap[i], self.heap[biggest] = self.heap[biggest], self.heap[i]
+//i = biggest
+//left = 2*i + 1
+//right = 2*i + 2
+//
+//def insert(self, element):
+//self.heap.append(element)
+//self._siftup(len(self.heap)-1)
+//
+//def get_max(self):
+//return self.heap[0] if len(self.heap) > 0 else None
+//
+//        def extract_max(self):
+//if len(self.heap) == 0:
+//return None
+//        maxval = self.heap[0]
+//self.heap[0], self.heap[-1] = self.heap[-1], self.heap[0]
+//self.heap.pop()
+//self._siftdown(0)
+//return maxval
+//
+//        def update_by_index(self, i, new):
+//old = self.heap[i]
+//self.heap[i] = new
+//if new > old:
+//self._siftup(i)
+//else:
+//self._siftdown(i)
+//
+//def update(self, old, new):
+//if old in self.heap:
+//self.update_by_index(self.heap.index(old), new)
+//
+//
+//def heapsort(arr):
+//heap = MinHeap(arr)
+//return [heap.extract_min() for i in range(len(heap.heap))]
+//
+//
+//class PriorityQueue:
+//        def __init__(self):
+//self.queue = MaxHeap()
+//
+//def enqueue(self, element):
+//self.queue.insert(element)
+//
+//def peek(self):
+//return self.queue.get_max()
+//
+//def dequeue(self, element):
+//return self.queue.extract_max()
+//
+//def is_empty(self):
+//return len(self.queue.heap) == 0
+//
+//def change_priority_by_index(self, i, new):
+//self.queue.update_by_index(i, new)
+//
+//def change_priority(self, old, new):
+//self.queue.update(old, new)
+
+
+
+
+
+//min heap cu pq
+// C++ program to use priority_queue to implement min heap
+#include <bits/stdc++.h>
+using namespace std;
+
+// Driver code
+int main ()
+{
+    // Creates a min heap
+    priority_queue <int, vector<int>, greater<int> > pq;
+    pq.push(5);
+    pq.push(1);
+    pq.push(10);
+    pq.push(30);
+    pq.push(20);
+
+    // One by one extract items from min heap
+    while (pq.empty() == false)
+    {
+        cout << pq.top() << " ";
+        pq.pop();
+    }
+
+    return 0;
+}
+
+
+
+//max heap cu pq
+
+// C++ program to show that priority_queue is by
+// default a Max Heap
+#include <bits/stdc++.h>
+using namespace std;
+
+// Driver code
+int main ()
+{
+    // Creates a max heap
+    priority_queue <int> pq;
+    pq.push(5);
+    pq.push(1);
+    pq.push(10);
+    pq.push(30);
+    pq.push(20);
+
+    // One by one extract items from max heap
+    while (pq.empty() == false)
+    {
+        cout << pq.top() << " ";
+        pq.pop();
+    }
+
+    return 0;
+}
